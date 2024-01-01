@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,14 +24,28 @@ public class Orbit : MonoBehaviour
     Universe universe;
     [SerializeField]
     CelestialBody centralBody;
+    [Header("Orbit Visualization")]
+    [SerializeField, Min(0)]
+    int lineSegments;
+    [SerializeField]
+    bool drawOrbit = true;
+    LineRenderer lineRenderer;
 
-    public double SemiMajorAxis { get { return semiMajorAxis; }  }
+    public double SemiMajorAxis { get { return semiMajorAxis; } }
     public double SemiMajorAxisCubed { get { return semiMajorAxis * semiMajorAxis * semiMajorAxis; } }
     public double Eccentricity { get { return eccentricity; } }
-    public double Inclination { get {  return inclination * Mathd.Deg2Rad; } }
+    public double Inclination { get { return inclination * Mathd.Deg2Rad; } }
     public double LongitudeOfAscendingNode { get { return longitudeOfAscendingNode * Mathd.Deg2Rad; } }
     public double ArgumentOfPeriapsis { get { return argumentOfPeriapsis * Mathd.Deg2Rad; } }
     public double TrueAnomalyEpoch { get { return trueAnomalyEpoch * Mathd.Deg2Rad; } }
+    public double Period
+    {
+        get
+        {
+            Debug.Assert(centralBody != null);
+            return 2 * Mathd.PI * Mathd.Sqrt(SemiMajorAxisCubed / centralBody.Mu);
+        }
+    }
 
     public Vector3d GetPositionAtTime(double time)
     {
@@ -42,7 +57,7 @@ public class Orbit : MonoBehaviour
         double trueAnomaly = GetTrueAnomaly(eccentricAnomaly);
         double distance = GetDistance(eccentricAnomaly);
         Vector3d positionVector = GetPositionVector(trueAnomaly, distance);
-        return GetInertialBodyCentricCoordinates(positionVector);
+        return GetInertialBodyCentricCoordinates(positionVector) + new Vector3d(centralBody.transform.position);
     }
 
     public Vector3d GetInertialBodyCentricCoordinates(Vector3d positionVector)
@@ -102,6 +117,11 @@ public class Orbit : MonoBehaviour
         return meanAnomaly % (2 * Mathd.PI);
     }
 
+    private void Start()
+    {
+        lineRenderer = GetComponent<LineRenderer>();
+    }
+
     private void Update()
     {
         Debug.Assert(universe != null);
@@ -112,6 +132,34 @@ public class Orbit : MonoBehaviour
     {
         ValidateOrbitElements();
         SetPositionAtEpoch();
+        DrawOrbit();
+    }
+
+    // TODO: The way positions for the line renderer is currently generated
+    //  creates issues with highly eccentric orbits since more of the positions
+    //  are towards the apoapsis. Should use a better solution to create equidistant points
+    //  around the ellipse
+    private void DrawOrbit()
+    {
+        if (!centralBody) return;
+        if (!lineRenderer && !(lineRenderer = GetComponent<LineRenderer>())) return;
+        if (!drawOrbit)
+        {
+            lineRenderer.positionCount = 0;
+            return;
+        }
+
+        Vector3[] positions = new Vector3[lineSegments];
+        double time = Universe.Epoch;
+        double segmentOffset = Period / lineSegments;
+        for (int i = 0; i < lineSegments; i++)
+        {
+            positions[i] = (Vector3)GetPositionAtTime(time);
+            time += segmentOffset;
+        }
+        lineRenderer.loop = true;
+        lineRenderer.positionCount = positions.Length;
+        lineRenderer.SetPositions(positions);
     }
 
     private void SetPositionAtEpoch()
