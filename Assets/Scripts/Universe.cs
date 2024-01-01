@@ -14,17 +14,6 @@ public class Universe : MonoBehaviour
     /// </summary>
     public const double Epoch = 0;
 
-    /// <summary>
-    /// Finds the Universe inside the scene
-    /// </summary>
-    /// <returns>Universe instance in scene</returns>
-    public static Universe GetInstance()
-    {
-        GameObject universe = GameObject.Find("Universe");
-        Debug.Assert(universe != null);
-        return universe.GetComponent<Universe>();
-    }
-
     public double UniversalTime = Epoch;
     public double TimeScale { get; private set; } = 1.0;
 

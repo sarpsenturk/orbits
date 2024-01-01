@@ -368,13 +368,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84f3baf3475505443a7aa9d3e8aaa564, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  centralBody: {fileID: 1014687070}
   semiMajorAxis: 5
   eccentricity: 0
   inclination: 0
   longitudeOfAscendingNode: 0
   argumentOfPeriapsis: 0
   trueAnomalyEpoch: 0
+  universe: {fileID: 1561270676}
+  centralBody: {fileID: 1014687070}
 --- !u!114 &1256714352
 MonoBehaviour:
   m_ObjectHideFlags: 0
