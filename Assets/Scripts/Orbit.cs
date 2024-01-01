@@ -30,6 +30,10 @@ public class Orbit : MonoBehaviour
     [SerializeField]
     bool drawOrbit = true;
     LineRenderer lineRenderer;
+    [SerializeField]
+    TMPro.TMP_Text periapsisText;
+    [SerializeField]
+    TMPro.TMP_Text apoapsisText;
 
     public double SemiMajorAxis { get { return semiMajorAxis; } }
     public double SemiMajorAxisCubed { get { return semiMajorAxis * semiMajorAxis * semiMajorAxis; } }
@@ -46,13 +50,25 @@ public class Orbit : MonoBehaviour
             return 2 * Mathd.PI * Mathd.Sqrt(SemiMajorAxisCubed / centralBody.Mu);
         }
     }
+    public double Apoapsis { get { return SemiMajorAxis * (1 + Eccentricity); } }
+    public double Periapsis { get { return SemiMajorAxis * (1 - Eccentricity); } }
 
     public Vector3d GetPositionAtTime(double time)
     {
         Debug.Assert(centralBody != null);
         Debug.Assert(time >= 0);
-
         double meanAnomaly = GetMeanAnomaly(time);
+        double eccentricAnomaly = GetEccentricAnomaly(meanAnomaly);
+        double trueAnomaly = GetTrueAnomaly(eccentricAnomaly);
+        double distance = GetDistance(eccentricAnomaly);
+        Vector3d positionVector = GetPositionVector(trueAnomaly, distance);
+        return GetInertialBodyCentricCoordinates(positionVector) + new Vector3d(centralBody.transform.position);
+    }
+
+    public Vector3d GetPositionAtMeanAnomaly(double meanAnomaly)
+    {
+        Debug.Assert(centralBody != null);
+        Debug.Assert(meanAnomaly >= 0);
         double eccentricAnomaly = GetEccentricAnomaly(meanAnomaly);
         double trueAnomaly = GetTrueAnomaly(eccentricAnomaly);
         double distance = GetDistance(eccentricAnomaly);
@@ -133,6 +149,15 @@ public class Orbit : MonoBehaviour
         ValidateOrbitElements();
         SetPositionAtEpoch();
         DrawOrbit();
+        UpdateUI();
+    }
+
+    private void UpdateUI()
+    {
+        periapsisText.transform.position = (Vector3)GetPositionAtMeanAnomaly(0);
+        periapsisText.text = string.Format("Periapsis\n{0:0.00}m", Periapsis);
+        apoapsisText.transform.position = (Vector3)GetPositionAtMeanAnomaly(Mathd.PI);
+        apoapsisText.text = string.Format("Apoapsis\n{0:0.00}m", Apoapsis);
     }
 
     // TODO: The way positions for the line renderer is currently generated
