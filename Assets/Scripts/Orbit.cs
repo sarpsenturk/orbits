@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class Orbit : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class Orbit : MonoBehaviour
     double argumentOfPeriapsis;
     [SerializeField, Range(0f, 360f)]
     double trueAnomalyEpoch;
+
+    Universe universe;
 
     public double SemiMajorAxis { get { return semiMajorAxis; }  }
     public double SemiMajorAxisCubed { get { return semiMajorAxis * semiMajorAxis * semiMajorAxis; } }
@@ -97,7 +100,18 @@ public class Orbit : MonoBehaviour
         return meanAnomaly % (2 * Mathd.PI);
     }
 
-    public void OnValidate()
+    private void Start()
+    {
+        universe = Universe.GetInstance();
+    }
+
+    private void Update()
+    {
+        Debug.Assert(universe != null);
+        transform.position = (Vector3)GetPositionAtTime(universe.UniversalTime);
+    }
+
+    private void OnValidate()
     {
         if (semiMajorAxis == 0)
         {
@@ -124,5 +138,8 @@ public class Orbit : MonoBehaviour
             Debug.LogWarning("Argument of periapsis must be in range [0, 360]");
             argumentOfPeriapsis = Mathd.Clamp(argumentOfPeriapsis, 0, 360);
         }
+
+        if (!centralBody) return;
+        transform.position = (Vector3)GetPositionAtTime(Universe.Epoch);
     }
 }

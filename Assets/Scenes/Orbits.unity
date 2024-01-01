@@ -349,7 +349,6 @@ GameObject:
   - component: {fileID: 1256714353}
   - component: {fileID: 1256714352}
   - component: {fileID: 1256714351}
-  - component: {fileID: 1256714350}
   m_Layer: 0
   m_Name: Planet
   m_TagString: Untagged
@@ -357,18 +356,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1256714350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1256714349}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d3640e81c2399141bfe4e4346e4ab19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1256714351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -383,7 +370,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   centralBody: {fileID: 1014687070}
   semiMajorAxis: 5
-  eccentricity: 0.5
+  eccentricity: 0
   inclination: 0
   longitudeOfAscendingNode: 0
   argumentOfPeriapsis: 0
